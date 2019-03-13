@@ -141,5 +141,3 @@ dev.off()
 jpeg('plots/PCA/PCA_log_withLoadings.jpeg', width = 20, height = 15, units = 'in', res = 300)
 autoplot(pcsLog, data=logPotMeasures, colour='type', shape='type', size=2, loadgins=TRUE, loadings.label=TRUE)
 dev.off()  
-
-
