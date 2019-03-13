@@ -1,133 +1,145 @@
-libraries <- c("ggplot2","ggfortify","readxl","ggfortify","corrplot")
+libraries <- c("ggplot2","ggfortify","readxl","ggfortify","corrplot","devEMF")
 
 lapply(libraries, library, character.only=TRUE)
 
 "
-EXPLORATORY DATA ANALYSIS
+ANÁLISIS EXPLORATORIO DE DATOS
 "
 
-summary(smaUtil)
+summary(potteryMeasures)
 
-# Density plot
-ggplot(smaUtil, aes(dVoBa, fill=tipus)) +  
+# gráfico de densidad y boxplot para todas las variables
+
+    # diámetro borde y base / borde
+    
+ggplot(potteryMeasures, aes(diamBo, fill=type)) +  
   geom_density(alpha=0.5) +  
-  facet_wrap(~tipus, ncol = 1, scales = 'free')
+  facet_wrap(~type, scales = 'free')
 
-ggplot(sma, aes(dMinMax, fill=tipus)) +  
-  geom_density(alpha=0.5) +  
-  facet_wrap(~tipus)
-
-ggplot(sma, aes(grMin, fill=tipus)) +  
-  geom_density(alpha=0.5) +  
-  facet_wrap(~tipus)
-
-ggplot(sma, aes(grMig, fill=tipus)) +  
-  geom_density(alpha=0.5) +  
-  facet_wrap(~tipus)
-
-ggplot(sma, aes(grMax, fill=tipus)) +  
-  geom_density(alpha=0.5) +  
-  facet_wrap(~tipus)
-
-ggplot(sma, aes(alçada, fill=tipus)) +  
-  geom_density(alpha=0.5) +  
-  facet_wrap(~tipus)
-
-
-# Boxplot
-
-ggplot(smaUtil, aes(tipus, dVoBa, fill=tipus)) +  
+ggplot(potteryMeasures, aes(type, diamBo, fill=type)) +  
   geom_boxplot(alpha=0.5)
-
-ggplot(sma, aes(tipus, dMinMax, fill=tipus)) +  
-  geom_boxplot(alpha=0.5)
-
-ggplot(sma, aes(tipus, grMin, fill=tipus)) +  
-  geom_boxplot(alpha=0.5)
-
-ggplot(sma, aes(tipus, grMig, fill=tipus)) +  
-  geom_boxplot(alpha=0.5)
-
-ggplot(sma, aes(tipus, grMax, fill=tipus)) +  
-  geom_boxplot(alpha=0.5)
-
-ggplot(sma, aes(tipus, alçada, fill=tipus)) +  
-  geom_boxplot(alpha=0.5) +  
   
+    # diámetro mínimo y máximo
+
+ggplot(potteryMeasures, aes(diamMin, fill=type)) +  
+  geom_density(alpha=0.5) +  
+  facet_wrap(~type)
+
+ggplot(potteryMeasures, aes(diamMax, fill=type)) +  
+  geom_density(alpha=0.5) +  
+  facet_wrap(~type)
+
+ggplot(potteryMeasures, aes(type, diamMin, fill=type)) +  
+  geom_boxplot(alpha=0.5)  
+
+ggplot(potteryMeasures, aes(type, diamMax, fill=type)) +  
+  geom_boxplot(alpha=0.5)  
+  
+  # grosor mínimo y máximo
+  
+ggplot(potteryMeasures, aes(grMin, fill=type)) +  
+  geom_density(alpha=0.5) +  
+  facet_wrap(~type)
+
+ggplot(potteryMeasures, aes(grMax, fill=type)) +  
+  geom_density(alpha=0.5) +  
+  facet_wrap(~type)
+
+ggplot(potteryMeasures, aes(type, grMin, fill=type)) +  
+  geom_boxplot(alpha=0.5) 
+
+ggplot(potteryMeasures, aes(type, grMax, fill=type)) +  
+  geom_boxplot(alpha=0.5)   
+  
+  # altura
+  
+ggplot(potteryMeasures, aes(altura, fill=type)) +  
+  geom_density(alpha=0.5) +  
+  facet_wrap(~type)
+  
+ggplot(potteryMeasures, aes(type, altura, fill=type)) +  
+  geom_boxplot(alpha=0.5)   
+  
+  # perfil BCYXD
+  
+ggplot(potteryMeasures, aes(bcyxd, fill=type)) +  
+  geom_density(alpha=0.5) +  
+  facet_wrap(~type)
+
+ggplot(potteryMeasures, aes(type, bcyxd, fill=type)) +  
+  geom_boxplot(alpha=0.5)    
+  
+"
+TRANSFORMACIÓN LOGARÍTMICA
+"
+  
+logPotMeasures <- log(potteryMeasures)
+
+ 
+"
+MATRIZ DE CORRELACIÓN
+"  
+
+corMeasures <- cor(potteryMeasures, method = "pearson")
+corLogMeasures <- cor(logPotMeasures, method = "pearson")
 
 
+emf(file = "plots/correlation_matrix/corrplot_potteryMeasures.emf", emfPlus = FALSE)
+
+corrplot.mixed(corMeasures, lower="number", lower.col = "gray30", number.cex= .8,    
+               upper="circle", tl.srt = 45, order="hclust", insig="p-value")
+
+               dev.off()
+
+
+emf(file = "plots/correlation_matrix/corrplot_logPotteryMeasures.emf", emfPlus = FALSE)
+
+corrplot.mixed(logPotMeasures, lower="number", lower.col = "gray30", number.cex= .8,    
+               upper="circle", tl.srt = 45, order="hclust", insig="p-value")
+
+dev.off()
 
 
 "
-PRINCIPAL COMPONENT ANALYSIS
+ANÁLISIS DE COMPONENTES PRINCIPALES
 "
+# si es necesario, seleccionar variables numéricas
+    # potMeasPCA <- smaMeasures[,X:X]
 
-# select varriables
-measuresSm <- sma[,10:14]
-measuresSm$bcyxd <- sma$bcyxd
 
-# compute PCA
-pcs <- prcomp(measuresSm)
+pcs <- prcomp(potteryMeasures)
 pcs
 plot(pcs)
 
-pcSma <- sma
-pcSma$pc1 <- pcs$x[,1]
-pcSma$pc2 <- pcs$x[,2]
+pcaMeasures <- potteryMeasures
+pcaMeasures$pc1 <- pcs$x[,1]
+pcaMeasures$pc2 <- pcs$x[,2]
 
 jpeg('plots/PCA/PCA_noLoadings.jpeg', width = 20, height = 15, units = 'in', res = 300)
-autoplot(pcs, data=sma, colour='tipus', shape='tipus', size=2)
+autoplot(pcs, data=potteryMeasures, colour='type', shape='type', size=2)
 dev.off()
 
 jpeg('plots/PCA/PCA_withLoadings.jpeg', width = 20, height = 15, units = 'in', res = 300)
-autoplot(pcs, data=sma, colour='tipus', shape='tipus', size=2, loadgins=TRUE, loadings.label=TRUE)
+autoplot(pcs, data=potteryMeasures, colour='type', shape='type', size=2, loadgins=TRUE, loadings.label=TRUE)
 dev.off()  
 
 
-# Without bcyxd
+# PCA - log
 
-measuresSm2 <- sma[,8:13]
-
-pcs2 <- prcomp(measuresSm2)
-pcs2
-plot(pcs2)
-
-pcSma2 <- sma
-pcSma2$pc1 <- pcs2$x[,1]
-pcSma2$pc2 <- pcs2$x[,2]
-
-jpeg('plots/PCA/PCA_noLoadings.jpeg', width = 20, height = 15, units = 'in', res = 300)
-autoplot(pcs2, data=sma, colour='tipus', shape='tipus', size=2)
-dev.off()
-
-jpeg('plots/PCA/PCA_withLoadings.jpeg', width = 20, height = 15, units = 'in', res = 300)
-autoplot(pcs2, data=sma, colour='tipus', shape='ue', size=2, loadgins=TRUE, loadings.label=TRUE)
-dev.off()  
-
-
-# PCA with log transformation data
-
-logTrans = log(measuresSm)
-plot(logTrans)
-
-
-
-
-pcsLog <- prcomp(logTrans)
+pcsLog <- prcomp(logPotMeasures)
 pcsLog
 plot(pcsLog)
 
-pcSmaLog <- sma
-pcSmaLog$pc1 <- pcsLog$x[,1]
-pcSmaLog$pc2 <- pcsLog$x[,2]
+pcaLogMeasures <- logPotMeasures
+pcaLogMeasures$pc1 <- pcsLog$x[,1]
+pcaLogMeasures$pc2 <- pcsLog$x[,2]
 
-autoplot(pcsLog, data=sma, colour='tipus', shape='tipus', size=2)
+jpeg('plots/PCA/PCA_log_noLoadings.jpeg', width = 20, height = 15, units = 'in', res = 300)
+autoplot(pcsLog, data=logPotMeasures, colour='type', shape='type', size=2)
+dev.off()
 
-autoplot(pcsLog, data=sma, colour='tipus', size=2, loadgins=TRUE, loadings.label=TRUE)
+jpeg('plots/PCA/PCA_log_withLoadings.jpeg', width = 20, height = 15, units = 'in', res = 300)
+autoplot(pcsLog, data=logPotMeasures, colour='type', shape='type', size=2, loadgins=TRUE, loadings.label=TRUE)
+dev.off()  
 
 
-
-
-"
-CORRELATION MATRIX
-"
